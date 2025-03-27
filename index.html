@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>My Movie App</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #141414;
+      color: #fff;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+
+    h1 {
+      padding: 20px;
+      margin: 0;
+    }
+
+    .movie-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .movie-card {
+      background-color: #1e1e1e;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      transition: transform 0.3s ease;
+    }
+
+    .movie-card:hover {
+      transform: scale(1.05);
+    }
+
+    .movie-poster {
+      width: 100%;
+      height: 270px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .movie-info {
+      padding: 10px;
+    }
+
+    .movie-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      height: 40px;
+      overflow: hidden;
+    }
+
+    .movie-rating {
+      color: #f5c518;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎬 인기 영화 리스트</h1>
+  <div class="movie-container" id="movieContainer"></div>
+
+  <script>
+    async function fetchMovies() {
+      try {
+        const res = await fetch('http://localhost:3000/movies');
+        const movies = await res.json();
+
+        const container = document.getElementById('movieContainer');
+
+        movies.forEach(movie => {
+          const card = document.createElement('div');
+          card.className = 'movie-card';
+
+          const poster = document.createElement('img');
+          poster.className = 'movie-poster';
+          poster.src = movie.poster_path
+            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+            : 'https://via.placeholder.com/300x450?text=No+Image';
+
+
+            poster.addEventListener('click', () => {
+                window.location.href = `movie.html?id=${movie.id}`;
+              });
+              
+
+          const info = document.createElement('div');
+          info.className = 'movie-info';
+
+          const title = document.createElement('div');
+          title.className = 'movie-title';
+          title.textContent = movie.original_title;
+
+          const rating = document.createElement('div');
+          rating.className = 'movie-rating';
+          rating.textContent = `⭐ ${movie.vote_average}`;
+
+          info.appendChild(title);
+          info.appendChild(rating);
+          card.appendChild(poster);
+          card.appendChild(info);
+          container.appendChild(card);
+        });
+      } catch (err) {
+        console.error('영화 불러오기 실패:', err);
+      }
+    }
+
+    fetchMovies();
+  </script>
+</body>
+</html>

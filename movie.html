@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>영화 상세</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #141414;
+      color: #fff;
+      font-family: 'Helvetica Neue', sans-serif;
+      padding: 20px;
+    }
+
+    .movie-detail {
+      max-width: 800px;
+      margin: auto;
+      display: flex;
+      gap: 20px;
+    }
+
+    img {
+      width: 300px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    .info {
+      flex: 1;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .rating {
+      color: #f5c518;
+      margin-bottom: 15px;
+    }
+
+    .overview {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="movie-detail" id="movieDetail"></div>
+  <h2 style="margin-top: 40px;">💬 댓글</h2>
+  <form id="commentForm" style="margin-bottom: 20px;">
+    <input type="text" id="nickname" placeholder="닉네임" required style="padding: 8px; width: 150px;">
+    <input type="text" id="comment" placeholder="한줄 댓글을 입력하세요" required style="padding: 8px; width: 300px;">
+    <button type="submit" style="padding: 8px 12px;">댓글 작성</button>
+  </form>
+  
+  <div id="commentList"></div>
+  
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const movieId = params.get('id');
+
+    async function fetchMovieDetail() {
+      try {
+        const res = await fetch(`http://localhost:3000/movies/${movieId}`);
+        const movie = await res.json();
+
+        const container = document.getElementById('movieDetail');
+
+        const poster = document.createElement('img');
+        poster.src = movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : 'https://via.placeholder.com/300x450?text=No+Image';
+
+        const info = document.createElement('div');
+        info.className = 'info';
+
+        info.innerHTML = `
+          <div class="title">${movie.original_title}</div>
+          <div class="rating">⭐ ${movie.vote_average} / 투표수: ${movie.vote_count}</div>
+          <div class="overview">${movie.overview}</div>
+        `;
+
+        container.appendChild(poster);
+        container.appendChild(info);
+      } catch (err) {
+        console.error('상세 불러오기 실패:', err);
+      }
+    }
+
+    fetchMovieDetail();
+    const commentForm = document.getElementById('commentForm');
+const commentList = document.getElementById('commentList');
+
+commentForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const nickname = document.getElementById('nickname').value.trim();
+  const comment = document.getElementById('comment').value.trim();
+
+  if (!nickname || !comment) return alert('닉네임과 댓글을 모두 입력해주세요.');
+
+  const res = await fetch('http://localhost:3000/comments', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ movie_id: movieId, nickname, comment })
+  });
+
+  const data = await res.json();
+
+  if (data.success) {
+    document.getElementById('comment').value = '';
+    loadComments(); // 새로고침 없이 댓글 다시 로드
+  } else {
+    alert('댓글 작성 실패');
+  }
+});
+
+async function loadComments() {
+  const res = await fetch(`http://localhost:3000/comments/${movieId}`);
+  const comments = await res.json();
+
+  commentList.innerHTML = ''; // 초기화
+
+  comments.forEach(c => {
+    const div = document.createElement('div');
+    div.style.marginBottom = '12px';
+    div.innerHTML = `<b>${c.nickname}</b> (${new Date(c.created_at).toLocaleString()})<br>${c.comment}`;
+    commentList.appendChild(div);
+  });
+}
+
+loadComments();
+
+  </script>
+</body>
+</html>
