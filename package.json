@@ -1,0 +1,24 @@
+{
+  "name": "movie_pjt",
+  "version": "1.0.0",
+  "description": "1. 영화 리뷰를 작성할 수 있는 프로젝트를 만들기!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vsssksvss/movie_pjt.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vsssksvss/movie_pjt/issues"
+  },
+  "homepage": "https://github.com/vsssksvss/movie_pjt#readme",
+  "dependencies": {
+    "express": "^4.21.2",
+    "nodemon": "^3.1.9"
+  }
+}
